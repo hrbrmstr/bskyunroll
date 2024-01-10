@@ -13,7 +13,6 @@ app.use(
   })
 )
 
-
 /**
  * Retrieve and parse HTML from a given URL
  * @param {string} url 
@@ -77,12 +76,20 @@ function didFromPost(postDoc) {
  */
 function extractEmbeds(embeds, didPlc) {
   if (embeds && Object.keys(embeds).includes("$type")) {
-    if (embeds["$type"] === "app.bsky.embed.images") {
+    if (embeds[ "$type" ] === "app.bsky.embed.images") {
       const imgs = [];
       for (const image of embeds.images) {
         const mime = image.image.mimeType.split("/").pop()
-        const link = image.image.ref["$link"]
+        const link = image.image.ref[ "$link" ]
         imgs.push(`https://cdn.bsky.app/img/feed_thumbnail/plain/${didPlc}/${link}@${mime}`)
+      }
+      return imgs;
+    } else if (embeds[ "$type" ] === "app.bsky.embed.external") {
+      const imgs = [];
+      if (Object.keys(embeds.external).includes("uri")) {
+        if (embeds.external.uri.match(/(giphy|tenor)/)) {
+          imgs.push(embeds.external.uri)
+        }
       }
       return imgs;
     }
